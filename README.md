@@ -84,7 +84,7 @@ If you want to run the application manually instead of using `docker-compose`, t
     bitnami/phabricator:latest
   ```
 
-Access your application at http://your-ip/
+Access your application at <http://your-ip/>
 
 ## Persisting your application
 
