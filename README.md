@@ -374,16 +374,18 @@ You can follow these steps in order to migrate it to this container:
 1. Export the data from your SOURCE installation: (assuming an installation in `/bitnami` directory)
 
 ```bash
-$ cd ~
-$ /bitnami/phabricator/bin/storage dump | gzip > ./backup-phabricator-mysql-dumps.sql.gz
-$ tar -zcvf ./backup-phabricator-localstorage.tar.gz /bitnami/phabricator/data
-$ tar -zcvf ./backup-phabricator-repos.tar.gz /bitnami/phabricator/repo
+$ cd /bitnami/phabricator/apps/phabricator/htdocs/bin
+$ ./storage dump | gzip > ~/backup-phabricator-mysql-dumps.sql.gz
+$ cd /bitnami/phabricator/apps/phabricator/data/
+$ tar -zcvf ~/backup-phabricator-localstorage.tar.gz .
+$ cd /bitnami/phabricator/apps/phabricator/repo/
+$ tar -zcvf ~/backup-phabricator-repos.tar.gz .
 ```
 
 2. Copy the backup files to your TARGET installation:
 
 ```bash
-$ scp ./backup-phabricator-* YOUR_USERNAME@TARGET_HOST:~
+$ scp ~/backup-phabricator-* YOUR_USERNAME@TARGET_HOST:~
 ```
 
 3. Create the Phabricator Container as described in the section #How to use this Image
@@ -422,13 +424,13 @@ $ docker exec phabricator /opt/bitnami/phabricator/bin/storage upgrade --force
 7. Restore repositories from backup:
 
 ```bash
-$ cat ./backup-phabricator-repos.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -pxzvf -'
+$ cat ./backup-phabricator-repos.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -xzvf -'
 ```
 
 8. Restore local storage files:
 
 ```bash
-$ cat ./backup-phabricator-localstorage.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/data ; tar -pxzvf -'
+$ cat ./backup-phabricator-localstorage.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/data ; tar -xzvf -'
 ```
 
 9. Fix repositories storage location: (replace ROOT_PASSWORD below with your MariaDB root password)
