@@ -367,32 +367,30 @@ To backup your application data follow these steps:
 
 To restore your application using backed up data simply mount the folder with Phabricator and Apache data in the container. See [persisting your application](#persisting-your-application) section for more info.
 
-# Migrating from Bitnami Phabricator Stack
+# How to migrate from a Bitnami Phabricator Stack
 
-If you already have a Bitnami Phabricator Stack in production, follow these steps to migrate it to this container.
+You can follow these steps in order to migrate it to this container:
 
-First, export the data from your SOURCE installation: (assuming an installation in `/bitnami` directory)
+1. Export the data from your SOURCE installation: (assuming an installation in `/bitnami` directory)
 
-```
+```bash
 $ cd ~
 $ /bitnami/phabricator/bin/storage dump | gzip > ./backup-phabricator-mysql-dumps.sql.gz
 $ tar -zcvf ./backup-phabricator-localstorage.tar.gz /bitnami/phabricator/data
 $ tar -zcvf ./backup-phabricator-repos.tar.gz /bitnami/phabricator/repo
 ```
 
-Now, copy the resulting `.gz` files to your TARGET installation.
+2. Copy the backup files to your TARGET installation:
 
-```
+```bash
 $ scp ./backup-phabricator-* YOUR_USERNAME@TARGET_HOST:~
 ```
 
-Then, in you TARGET installation:
+3. Create the Phabricator Container as described in the section #How to use this Image
 
-1. Create the containers following the instructions from the beginning of this file.
+4. Wait for the initial setup to finish. You can follow it with
 
-2. Wait for the initial setup to finish. You can follow it with
-
-```
+```bash
 $ docker logs -f phabricator
 ```
 
@@ -406,36 +404,36 @@ Starting application ...
   *** Brought to you by Bitnami ***
 ```
 
-3. Stop phabricator daemon inside the container
+5. Stop Phabricator daemon:
 
-```
-$ docker exec phabricator /opt/bitnami/phabricator/bin/phd stop
+```bash
+$ docker exec phabricator nami stop phabricator
 ```
 
-4. Restore and upgrade databases
+6. Restore and upgrade the database: (replace ROOT_PASSWORD below with your MariaDB root password)
 
-```
+```bash
 $ cd ~
 $ docker exec phabricator /opt/bitnami/phabricator/bin/storage destroy --force
 $ gunzip -c ./backup-phabricator-mysql-dumps.sql.gz | docker exec -i mariadb mysql -pROOT_PASSWORD
 $ docker exec phabricator /opt/bitnami/phabricator/bin/storage upgrade --force
 ```
 
-5. Restore repositories
+7. Restore repositories from backup:
 
-```
+```bash
 $ cat ./backup-phabricator-repos.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -pxzvf -'
 ```
 
-6. Restore local storage files
+8. Restore local storage files:
 
-```
+```bash
 $ cat ./backup-phabricator-localstorage.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/data ; tar -pxzvf -'
 ```
 
-7. Fix repositories storage location
+9. Fix repositories storage location: (replace ROOT_PASSWORD below with your MariaDB root password)
 
-```
+```bash
 $ cat | docker exec -i mariadb mysql -pROOT_PASSWORD <<EOF
 USE bitnami_phabricator_repository;
 UPDATE repository SET localPath = REPLACE(localPath, '/bitnami/apps/phabricator/repo/', '/opt/bitnami/phabricator/repo/');
@@ -443,15 +441,15 @@ COMMIT;
 EOF
 ```
 
-8. Fix phabricator directory owner and group
+10. Fix phabricator directory permissions:
 
-```
+```bash
 $ docker exec phabricator chown -R phabricator:phabricator /bitnami/phabricator
 ```
 
-9. Restart Phabricator container
+11. Restart Phabricator container:
 
-```
+```bash
 $ docker restart phabricator
 ```
 
