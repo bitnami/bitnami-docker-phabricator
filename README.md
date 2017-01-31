@@ -373,87 +373,87 @@ You can follow these steps in order to migrate it to this container:
 
 1. Export the data from your SOURCE installation: (assuming an installation in `/bitnami` directory)
 
-```bash
-$ cd /bitnami/phabricator/apps/phabricator/htdocs/bin
-$ ./storage dump | gzip > ~/backup-phabricator-mysql-dumps.sql.gz
-$ cd /bitnami/phabricator/apps/phabricator/data/
-$ tar -zcvf ~/backup-phabricator-localstorage.tar.gz .
-$ cd /bitnami/phabricator/apps/phabricator/repo/
-$ tar -zcvf ~/backup-phabricator-repos.tar.gz .
-```
+  ```bash
+  $ cd /bitnami/phabricator/apps/phabricator/htdocs/bin
+  $ ./storage dump | gzip > ~/backup-phabricator-mysql-dumps.sql.gz
+  $ cd /bitnami/phabricator/apps/phabricator/data/
+  $ tar -zcvf ~/backup-phabricator-localstorage.tar.gz .
+  $ cd /bitnami/phabricator/apps/phabricator/repo/
+  $ tar -zcvf ~/backup-phabricator-repos.tar.gz .
+  ```
 
 2. Copy the backup files to your TARGET installation:
 
-```bash
-$ scp ~/backup-phabricator-* YOUR_USERNAME@TARGET_HOST:~
-```
+  ```bash
+  $ scp ~/backup-phabricator-* YOUR_USERNAME@TARGET_HOST:~
+  ```
 
 3. Create the Phabricator Container as described in the section #How to use this Image
 
 4. Wait for the initial setup to finish. You can follow it with
 
-```bash
-$ docker logs -f phabricator
-```
+  ```bash
+  $ docker logs -f phabricator
+  ```
 
-and press `Ctrl-C` when you see this:
+  and press `Ctrl-C` when you see this:
 
-```
-nami    INFO  phabricator successfully initialized
-Starting application ...
+  ```
+  nami    INFO  phabricator successfully initialized
+  Starting application ...
 
-  *** Welcome to the phabricator image ***
-  *** Brought to you by Bitnami ***
-```
+    *** Welcome to the phabricator image ***
+    *** Brought to you by Bitnami ***
+  ```
 
 5. Stop Phabricator daemon:
 
-```bash
-$ docker exec phabricator nami stop phabricator
-```
+  ```bash
+  $ docker exec phabricator nami stop phabricator
+  ```
 
 6. Restore and upgrade the database: (replace ROOT_PASSWORD below with your MariaDB root password)
 
-```bash
-$ cd ~
-$ docker exec phabricator /opt/bitnami/phabricator/bin/storage destroy --force
-$ gunzip -c ./backup-phabricator-mysql-dumps.sql.gz | docker exec -i mariadb mysql -pROOT_PASSWORD
-$ docker exec phabricator /opt/bitnami/phabricator/bin/storage upgrade --force
-```
+  ```bash
+  $ cd ~
+  $ docker exec phabricator /opt/bitnami/phabricator/bin/storage destroy --force
+  $ gunzip -c ./backup-phabricator-mysql-dumps.sql.gz | docker exec -i mariadb mysql -pROOT_PASSWORD
+  $ docker exec phabricator /opt/bitnami/phabricator/bin/storage upgrade --force
+  ```
 
 7. Restore repositories from backup:
 
-```bash
-$ cat ./backup-phabricator-repos.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -xzvf -'
-```
+  ```bash
+  $ cat ./backup-phabricator-repos.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -xzvf -'
+  ```
 
 8. Restore local storage files:
 
-```bash
-$ cat ./backup-phabricator-localstorage.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/data ; tar -xzvf -'
-```
+  ```bash
+  $ cat ./backup-phabricator-localstorage.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/data ; tar -xzvf -'
+  ```
 
 9. Fix repositories storage location: (replace ROOT_PASSWORD below with your MariaDB root password)
 
-```bash
-$ cat | docker exec -i mariadb mysql -pROOT_PASSWORD <<EOF
-USE bitnami_phabricator_repository;
-UPDATE repository SET localPath = REPLACE(localPath, '/bitnami/apps/phabricator/repo/', '/opt/bitnami/phabricator/repo/');
-COMMIT;
-EOF
-```
+  ```bash
+  $ cat | docker exec -i mariadb mysql -pROOT_PASSWORD <<EOF
+  USE bitnami_phabricator_repository;
+  UPDATE repository SET localPath = REPLACE(localPath, '/bitnami/apps/phabricator/repo/', '/opt/bitnami/phabricator/repo/');
+  COMMIT;
+  EOF
+  ```
 
 10. Fix phabricator directory permissions:
 
-```bash
-$ docker exec phabricator chown -R phabricator:phabricator /bitnami/phabricator
-```
+  ```bash
+  $ docker exec phabricator chown -R phabricator:phabricator /bitnami/phabricator
+  ```
 
 11. Restart Phabricator container:
 
-```bash
-$ docker restart phabricator
-```
+  ```bash
+  $ docker restart phabricator
+  ```
 
 # Contributing
 
