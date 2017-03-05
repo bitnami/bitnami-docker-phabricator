@@ -388,12 +388,12 @@ You can follow these steps in order to migrate it to this container:
   $ scp ~/backup-phabricator-* YOUR_USERNAME@TARGET_HOST:~
   ```
 
-3. Create the Phabricator Container as described in the section #How to use this Image
+3. Create the Phabricator Container as described in the section #How to use this Image (Using Docker Compose)
 
 4. Wait for the initial setup to finish. You can follow it with
 
   ```bash
-  $ docker logs -f phabricator
+  $ docker-compose logs -f phabricator
   ```
 
   and press `Ctrl-C` when you see this:
@@ -409,34 +409,34 @@ You can follow these steps in order to migrate it to this container:
 5. Stop Phabricator daemon:
 
   ```bash
-  $ docker exec phabricator nami stop phabricator
+  $ docker-compose exec phabricator nami stop phabricator
   ```
 
 6. Restore and upgrade the database: (replace ROOT_PASSWORD below with your MariaDB root password)
 
   ```bash
   $ cd ~
-  $ docker exec phabricator /opt/bitnami/phabricator/bin/storage destroy --force
-  $ gunzip -c ./backup-phabricator-mysql-dumps.sql.gz | docker exec -i mariadb mysql -pROOT_PASSWORD
-  $ docker exec phabricator /opt/bitnami/phabricator/bin/storage upgrade --force
+  $ docker-compose exec phabricator /opt/bitnami/phabricator/bin/storage destroy --force
+  $ gunzip -c ./backup-phabricator-mysql-dumps.sql.gz | docker-compose exec mariadb mysql -pROOT_PASSWORD
+  $ docker-compose exec phabricator /opt/bitnami/phabricator/bin/storage upgrade --force
   ```
 
 7. Restore repositories from backup:
 
   ```bash
-  $ cat ./backup-phabricator-repos.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -xzvf -'
+  $ cat ./backup-phabricator-repos.tar.gz | docker-compose exec phabricator bash -c 'cd /bitnami/phabricator/repo ; tar -xzvf -'
   ```
 
 8. Restore local storage files:
 
   ```bash
-  $ cat ./backup-phabricator-localstorage.tar.gz | docker exec -i phabricator bash -c 'cd /bitnami/phabricator/data ; tar -xzvf -'
+  $ cat ./backup-phabricator-localstorage.tar.gz | docker-compose exec phabricator bash -c 'cd /bitnami/phabricator/data ; tar -xzvf -'
   ```
 
 9. Fix repositories storage location: (replace ROOT_PASSWORD below with your MariaDB root password)
 
   ```bash
-  $ cat | docker exec -i mariadb mysql -pROOT_PASSWORD <<EOF
+  $ cat | docker-compose exec mariadb mysql -pROOT_PASSWORD <<EOF
   USE bitnami_phabricator_repository;
   UPDATE repository SET localPath = REPLACE(localPath, '/bitnami/apps/phabricator/repo/', '/opt/bitnami/phabricator/repo/');
   COMMIT;
@@ -446,13 +446,13 @@ You can follow these steps in order to migrate it to this container:
 10. Fix phabricator directory permissions:
 
   ```bash
-  $ docker exec phabricator chown -R phabricator:phabricator /bitnami/phabricator
+  $ docker-compose exec phabricator chown -R phabricator:phabricator /bitnami/phabricator
   ```
 
 11. Restart Phabricator container:
 
   ```bash
-  $ docker restart phabricator
+  $ docker-compose restart phabricator
   ```
 
 # Contributing
