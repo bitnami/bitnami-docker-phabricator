@@ -469,6 +469,10 @@ You can follow these steps in order to migrate it to this container:
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/bitnami-docker-phabricator/issues), or submit a [pull request](https://github.com/bitnami/bitnami-docker-phabricator/pulls) with your contribution.
 
+# FAQ
+
+You can search for frequently asked questions (and answers) in the GitHub issue list. These are marked with the label [faq](https://github.com/bitnami/bitnami-docker-phabricator/issues?utf8=%E2%9C%93&q=label%3Afaq%20).
+
 # Issues
 
 If you encountered a problem running this container, you can file an [issue](https://github.com/bitnami/bitnami-docker-phabricator/issues). For us to provide better support, be sure to include the following information in your issue:
