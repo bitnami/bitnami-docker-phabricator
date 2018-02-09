@@ -162,7 +162,7 @@ services:
     bitnami/phabricator:latest
   ```
 ## Accessing [Phabricator scripts](https://secure.phabricator.com/book/phabricator/)
-Standard Phabricator distribution includes a number of unility scripts to configure tools and services included with it. You can find the `/bin/` directory that Phabricator docs mention at `/opt/bitnami/phabricator/bin/` inside the container. 
+Standard Phabricator distribution includes a number of utility scripts to configure tools and services included with it. You can find the `/bin/` directory that Phabricator docs mention at `/opt/bitnami/phabricator/bin/` inside the container. 
 
 # Upgrading Phabricator
 
