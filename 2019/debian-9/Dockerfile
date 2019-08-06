@@ -41,8 +41,6 @@ ENV APACHE_HTTPS_PORT_NUMBER="" \
 
 VOLUME [ "/certs" ]
 
-VOLUME [ "/certs" ]
-
 EXPOSE 80 443
 
 ENTRYPOINT [ "/app-entrypoint.sh" ]
