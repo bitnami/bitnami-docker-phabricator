@@ -32,7 +32,12 @@ if [ "${PHABRICATOR_SSH_PORT_NUMBER}" != "" ]; then
     sed -i 's/AuthorizedKeysCommandUser .*/AuthorizedKeysCommandUser '$PHABRICATOR_SSH_USER'/i' /etc/ssh/sshd_config
     sed -i 's/AllowUsers.*/AllowUsers '$PHABRICATOR_SSH_USER'/i' /etc/ssh/sshd_config
     sed -i 's/Port.*/Port '$PHABRICATOR_SSH_PORT_NUMBER'/i' /etc/ssh/sshd_config
-    ln -s /opt/bitnami/php/bin/php /usr/bin/php
+    sed -i 's;^\(git:.*\):/home/phabricator:;\1:/opt/bitnami/phabricator:;' /etc/passwd
+    
+    if [[ ! -h "/usr/bin/php"  ]]; then
+        ln -s /opt/bitnami/php/bin/php /usr/bin/php
+    fi
+
     /opt/bitnami/phabricator/bin/config set diffusion.ssh-port $PHABRICATOR_SSH_PORT_NUMBER
     service ssh start &
 fi
