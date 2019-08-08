@@ -50,7 +50,7 @@ if [ "${PHABRICATOR_SSH_PORT_NUMBER}" != "" ]; then
     service ssh start &
 fi
 
-if [[ "${PHABRICATOR_ALLOW_GIT_LFS:-no}" == "yes" ]] ; then
+if [[ "${PHABRICATOR_ALLOW_GIT_LFS}" == "yes" ]] ; then
     /opt/bitnami/phabricator/bin/config set diffusion.allow-git-lfs true
 fi
 
