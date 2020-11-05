@@ -4,7 +4,7 @@ services:
     image: 'docker.io/bitnami/mariadb:10.3-debian-10'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_EXTRA_FLAGS=--local-infile=0
+      - MARIADB_EXTRA_FLAGS=--local-infile=0 --sql_mode=STRICT_ALL_TABLES
     volumes:
       - 'mariadb_data:/bitnami'
   phabricator:
