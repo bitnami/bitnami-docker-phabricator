@@ -527,6 +527,7 @@ phabricator_enable_vcs_sshd_config() {
 phabricator_regenerate_ssh_keys() {
     local -r ssh_keys_dir="${PHABRICATOR_VOLUME_DIR}/.sshkeys"
     if [[ ! -d "$ssh_keys_dir" ]]; then
+        mkdir -p "$ssh_keys_dir"
         debug_execute ssh-keygen -t dsa -f "${ssh_keys_dir}/ssh_host_dsa_key" -N ""
         debug_execute ssh-keygen -t rsa -f "${ssh_keys_dir}/ssh_host_rsa_key" -N ""
         debug_execute ssh-keygen -t ecdsa -f "${ssh_keys_dir}/ssh_host_ecdsa_key" -N ""
