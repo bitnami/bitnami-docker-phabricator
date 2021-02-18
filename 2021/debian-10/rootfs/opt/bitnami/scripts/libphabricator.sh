@@ -506,13 +506,16 @@ phabricator_enable_vcs_sshd_config() {
     
     info "Configuring SSH daemon to support hosted GIT repositories"
     replace_in_file "${PHABRICATOR_BASE_DIR}/resources/sshd/phabricator-ssh-hook.sh" "^\s*VCSUSER=\s*.*$" "VCSUSER=${PHABRICATOR_SSH_VCS_USER}"
-    replace_in_file "${PHABRICATOR_BASE_DIR}/resources/sshd/phabricator-ssh-hook.sh" "^\s*ROOT=\s*.*$" "ROOT=${PHABRICATOR_BASE_DIR}"
+    replace_in_file "${PHABRICATOR_BASE_DIR}/resources/sshd/phabricator-ssh-hook.sh" "^\s*ROOT=\s*.*$" "ROOT=/opt/bitnami/phabricator\nPATH=$PATH"
     chmod 775 "${PHABRICATOR_BASE_DIR}/resources/sshd/phabricator-ssh-hook.sh"
     cp "${PHABRICATOR_BASE_DIR}/resources/sshd/sshd_config.phabricator.example" "/etc/ssh/sshd_config"
     replace_in_file "/etc/ssh/sshd_config" "^\\s*AuthorizedKeysCommand\\s+.*$" "AuthorizedKeysCommand ${PHABRICATOR_BASE_DIR}/resources/sshd/phabricator-ssh-hook.sh"
     replace_in_file "/etc/ssh/sshd_config" "^\\s*AuthorizedKeysCommandUser\\s+.*$" "AuthorizedKeysCommandUser $PHABRICATOR_SSH_VCS_USER"
     replace_in_file "/etc/ssh/sshd_config" "^\\s*AllowUsers\\s+.*$" "AllowUsers $PHABRICATOR_SSH_VCS_USER"
     replace_in_file "/etc/ssh/sshd_config" "^\\s*Port\\s+.*$" "Port $ssh_port"
+    echo "PermitUserEnvironment yes" >> "/etc/ssh/sshd_config"
+    mkdir -p "/home/${PHABRICATOR_SSH_VCS_USER}/.ssh"
+    echo "PATH=$PATH" > "/home/${PHABRICATOR_SSH_VCS_USER}/.ssh/environment"
 }
 
 #########################
