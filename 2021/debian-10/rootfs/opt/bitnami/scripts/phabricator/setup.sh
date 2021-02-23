@@ -47,8 +47,8 @@ ${WEB_SERVER_DAEMON_USER} ALL=(${PHABRICATOR_DAEMON_USER}) SETENV: NOPASSWD: $(c
 ${PHABRICATOR_SSH_VCS_USER} ALL=(${PHABRICATOR_DAEMON_USER}) SETENV: NOPASSWD: $(command -v git), $(command -v git-upload-pack), $(command -v git-receive-pack), $(command -v ssh)
 EOF
     chmod 440 /etc/sudoers.d/phabricator
-    # SSH + sudo combination resets the environment and we're finding a lot of issues related to command unable to find binaries
-    # TODO: find a better way to define the envionment for daemon + vcs users combined with sudo actions.
+    # SSH + sudo combination resets the environment and we're finding a lot of issues related to commands unable to find binaries
+    # TODO: find a better way to define the environment for daemon + vcs users combined with sudo actions.
     for binary in "php" "git" "git-http-backend" "git-upload-pack" "git-receive-pack"; do
         ln -s "$(command -v "$binary")" "/usr/bin/${binary}"
     done
