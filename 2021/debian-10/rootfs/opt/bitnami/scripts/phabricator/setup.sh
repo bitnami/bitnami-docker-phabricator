@@ -42,15 +42,22 @@ if am_i_root; then
     # Unlock VCS user without password authentication
     debug_execute usermod -p NP "$PHABRICATOR_SSH_VCS_USER"
     # Web Server & VCS users need to be able to sudo as the PH daemon user so they can interact with repositories
-    cat > /etc/sudoers.d/phabricator << EOF
+    sudoers_tmp=$(mktemp)
+    ph_sudoers_tmp=$(mktemp)
+    cat /etc/sudoers > "$sudoers_tmp"
+    replace_in_file "$sudoers_tmp" "^Defaults\s+env_reset$" "Defaults\tenv_reset\nDefaults\tenv_keep += PATH"
+    replace_in_file "$sudoers_tmp" "^Defaults\s+secure_path=\"(.*)\"$" "Defaults\tsecure_path=\"\1:$(command -v git | xargs dirname):$(command -v php | xargs dirname)\""
+    visudo -c -q -f "$sudoers_tmp" && cat "$sudoers_tmp" > /etc/sudoers
+    cat > "$ph_sudoers_tmp" << EOF
 ${WEB_SERVER_DAEMON_USER} ALL=(${PHABRICATOR_DAEMON_USER}) SETENV: NOPASSWD: $(command -v git), $(command -v git-http-backend), $(command -v ssh)
 ${PHABRICATOR_SSH_VCS_USER} ALL=(${PHABRICATOR_DAEMON_USER}) SETENV: NOPASSWD: $(command -v git), $(command -v git-upload-pack), $(command -v git-receive-pack), $(command -v ssh)
 EOF
-    chmod 440 /etc/sudoers.d/phabricator
-    # SSH + sudo combination resets the environment and we're finding a lot of issues related to commands unable to find binaries
-    # TODO: find a better way to define the environment for daemon + vcs users combined with sudo actions.
-    for binary in "php" "git" "git-http-backend" "git-upload-pack" "git-receive-pack"; do
-        ln -s "$(command -v "$binary")" "/usr/bin/${binary}"
+    visudo -c -q -f "$ph_sudoers_tmp" && cat "$ph_sudoers_tmp" > /etc/sudoers.d/phabricator && chmod 440 /etc/sudoers.d/phabricator
+    rm "$ph_sudoers_tmp" "$sudoers_tmp"
+    # We also need to ensure the PATH is properly set when accessing via SSH
+    for user in "$PHABRICATOR_DAEMON_USER" "$PHABRICATOR_SSH_VCS_USER"; do
+        mkdir -p "/home/$user/.ssh"
+        echo "PATH=$PATH" > "/home/$user/.ssh/environment"
     done
 
     # Ensure required directories exists and have proper permissions
