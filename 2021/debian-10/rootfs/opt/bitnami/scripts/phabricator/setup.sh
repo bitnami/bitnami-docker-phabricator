@@ -46,7 +46,7 @@ if am_i_root; then
     sudoers_tmp=$(mktemp)
     ph_sudoers_tmp=$(mktemp)
     cat /etc/sudoers > "$sudoers_tmp"
-    # Ensure 'php' & 'pip' commands can be found/executed with 'sudo su'
+    # Ensure 'php' & 'git' commands can be found/executed with 'sudo su'
     replace_in_file "$sudoers_tmp" "^Defaults\s+env_reset$" "Defaults\tenv_reset\nDefaults\tenv_keep += PATH"
     replace_in_file "$sudoers_tmp" "^Defaults\s+secure_path=\"(.*)\"$" "Defaults\tsecure_path=\"\1:$(command -v git | xargs dirname):$(command -v php | xargs dirname)\""
     visudo -c -q -f "$sudoers_tmp" && cat "$sudoers_tmp" > /etc/sudoers
