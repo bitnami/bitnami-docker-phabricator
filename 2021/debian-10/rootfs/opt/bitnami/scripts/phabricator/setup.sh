@@ -41,13 +41,16 @@ if am_i_root; then
     ensure_user_exists "$PHABRICATOR_SSH_VCS_USER" --group "$PHABRICATOR_SSH_VCS_GROUP" --home "/home/$PHABRICATOR_SSH_VCS_USER" --system
     # Unlock VCS user without password authentication
     debug_execute usermod -p NP "$PHABRICATOR_SSH_VCS_USER"
-    # Web Server & VCS users need to be able to sudo as the PH daemon user so they can interact with repositories
+    # Sudoers configuration syntax is critical. To avoid issues editing these files, we create
+    # temporary files to apply changes and check the syntax with 'visudo' before confirming them.
     sudoers_tmp=$(mktemp)
     ph_sudoers_tmp=$(mktemp)
     cat /etc/sudoers > "$sudoers_tmp"
+    # Ensure 'php' & 'pip' commands can be found/executed with 'sudo su'
     replace_in_file "$sudoers_tmp" "^Defaults\s+env_reset$" "Defaults\tenv_reset\nDefaults\tenv_keep += PATH"
     replace_in_file "$sudoers_tmp" "^Defaults\s+secure_path=\"(.*)\"$" "Defaults\tsecure_path=\"\1:$(command -v git | xargs dirname):$(command -v php | xargs dirname)\""
     visudo -c -q -f "$sudoers_tmp" && cat "$sudoers_tmp" > /etc/sudoers
+    # Web Server & VCS users need to be able to sudo as the PH daemon user so they can interact with repositories
     cat > "$ph_sudoers_tmp" << EOF
 ${WEB_SERVER_DAEMON_USER} ALL=(${PHABRICATOR_DAEMON_USER}) SETENV: NOPASSWD: $(command -v git), $(command -v git-http-backend), $(command -v ssh)
 ${PHABRICATOR_SSH_VCS_USER} ALL=(${PHABRICATOR_DAEMON_USER}) SETENV: NOPASSWD: $(command -v git), $(command -v git-upload-pack), $(command -v git-receive-pack), $(command -v ssh)
