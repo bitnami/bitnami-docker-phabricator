@@ -159,7 +159,6 @@ $ docker network create phabricator-network
 #### Step 2. Create a MariaDB container with host volume
 
 ```console
-$ docker volume create --name mariadb_data
 $ docker run -d --name mariadb \
   --env ALLOW_EMPTY_PASSWORD=yes \
   --network phabricator-network \
@@ -170,7 +169,6 @@ $ docker run -d --name mariadb \
 #### Step 3. Create the Phabricator the container with host volumes
 
 ```console
-$ docker volume create --name phabricator_data
 $ docker run -d --name phabricator \
   -p 8080:8080 -p 8443:8443 \
   --env ALLOW_EMPTY_PASSWORD=yes \
