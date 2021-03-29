@@ -166,7 +166,7 @@ $ docker run -d --name mariadb \
   bitnami/mariadb:latest
 ```
 
-#### Step 3. Create the Phabricator the container with host volumes
+#### Step 3. Create the Phabricator container with host volumes
 
 ```console
 $ docker run -d --name phabricator \
