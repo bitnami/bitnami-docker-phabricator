@@ -211,7 +211,7 @@ Available environment variables:
 - `APACHE_HTTP_PORT_NUMBER`: Port used by Apache for HTTP. Default: **8080**
 - `APACHE_HTTPS_PORT_NUMBER`: Port used by Apache for HTTPS. Default: **8443**
 - `PHABRICATOR_USERNAME`: Phabricator application username. Default: **user**
-- `PHABRICATOR_PASSWORD`: Phabricator application password. Default: **bitnami**
+- `PHABRICATOR_PASSWORD`: Phabricator application password. Default: **bitnami1**
 - `PHABRICATOR_EMAIL`: Phabricator application email. Default: **user@example.com**
 - `PHABRICATOR_FIRSTNAME`: Phabricator user first name. Default: **FirstName**
 - `PHABRICATOR_LASTNAME`: Phabricator user last name. Default: **LastName**
